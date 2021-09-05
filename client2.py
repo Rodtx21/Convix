@@ -11,7 +11,7 @@ def get_string(r):
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("192.168.0.116", 1025))
+s.connect(("5.43.52.92", 1025))
 
 msg = s.recv(1024)
 print(msg.decode("utf-8"))
