@@ -15,7 +15,7 @@ Contributions are always not welcome!
   
 ## Authors
 
-- [@katherinepeterson](https://github.com/Rodtx21)
+- [@Rodtx21](https://github.com/Rodtx21)
 ## 🚀 About Me
 I'm a full stack developer...
 
