@@ -1,44 +1,85 @@
 import socket
-from threading import *
+import threading
 
+host = "192.168.1.71"
+port = 7037
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("192.168.0.116", 1025))
+s.bind((host, port))
 s.listen(2)
 
 print("Server on!")
 
+clients = []
+nicknames = []
 
-while True:
-    clt1, adr = s.accept()
-    print(f"Connectedd to {adr}")
+def broadcast(message):
+    for client in clients:
+        client.send(message)
 
-    clt1.send(bytes("socket programming in py", "utf-8"))
+def handle(client):
+    while True:
+        try:
+            message = client.recv(1024)
+            broadcast(message)
+        except:
+            index = clients.index(client)
+            clients.remove(client)
+            client.close()
+            nickname = nicknames[index]
+            nicknames.remove(nickname)
+            broadcast(f'{nickname} left the chat!'.encode('ascii'))
+            break
 
-    clt2, adr2 = s.accept()
+def receive():
+    while True:
+        client, adress = s.accept()
+        print(f"Connected with {str(adress)}")
 
-    print(f"Connectedd to " + str(adr2))
+        client.send("NICK".encode("utf-8"))
+        nickname = client.recv(1024).decode("utf-8")
+        nicknames.append(nickname)
+        clients.append(client)
 
-    clt2.send(bytes("socket programming in py", "utf-8"))
+        print(f'Nickname of the client is {nickname}!')
+        broadcast(f'{nickname} joined the chat!'.encode("utf-8"))
+        client.send('Connected to the server!'.encode("utf-8"))
 
-    class clt1m(Thread):
-        def run(self):
-            while True:
-                message = clt1.recv(1024)
-                m = message.decode("utf-8")
-                print('user1: ' + m)
-                clt2.send(bytes(m, "utf-8"))
+        thread = threading.Thread(target=handle, args=(client,))
+        threading.start()
 
-    class clt2m(Thread):
-        def run(self):
-            while True:
-                answer = clt2.recv(1024)
-                an = answer.decode("utf-8")
-                print('user2: ' + an)
-                clt1.send(bytes(an, "utf-8"))
+print("Server is listening!")
+receive()
 
-while True:
-    client1_messages = clt1m()
-    client2_messages = clt2m()
+#while True:
+ #  print(f"Connectedd to {adr}")
+#
+ #   clt1.send(bytes("socket programming in py", "utf-8"))
+#
+ #   clt2, adr2 = s.accept()
+#
+ #   print(f"Connectedd to " + str(adr2))
+#
+ #   clt2.send(bytes("socket programming in py", "utf-8"))
+#
+ #   class clt1m(Thread):
+  #      def run(self):
+   #         while True:
+    #            message = clt1.recv(1024)
+     #           m = message.decode("utf-8")
+      ##          print('user1: ' + m)
+        #        clt2.send(bytes(m, "utf-8"))
+#
+ #   class clt2m(Thread):
+#        def run(self):
+ #           while True:
+#                answer = clt2.recv(1024)
+#                an = answer.decode("utf-8")
+#                print('user2: ' + an)
+#                clt1.send(bytes(an, "utf-8"))
 
-    client1_messages.start()
-    client2_messages.start()
+#while True:
+#    client1_messages = clt1m()
+#    client2_messages = clt2m()
+#
+ #   client1_messages.start()
+ #   client2_messages.start()
